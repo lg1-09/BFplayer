@@ -3,6 +3,7 @@
 #include "bfplayer/diagnostics.hpp"
 #include "bfplayer/safe_read_file.hpp"
 #include "bfplayer/source_uri.hpp"
+#include "bfplayer/text_encoding.h"
 
 #include <SDL.h>
 
@@ -28,6 +29,7 @@ extern "C" {
 #include <limits>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -606,10 +608,15 @@ struct ExternalSubtitles::Impl {
                 avcodec_free_context(&codec_context);
                 return false;
             }
+            const std::string header_utf8 = utf8_text(std::string_view(
+                reinterpret_cast<const char*>(codec_context->subtitle_header),
+                static_cast<std::size_t>(codec_context->subtitle_header_size)));
+            std::vector<char> header_bytes(header_utf8.begin(), header_utf8.end());
+            header_bytes.push_back('\0');
             ass_process_codec_private(
                 track,
-                reinterpret_cast<const char*>(codec_context->subtitle_header),
-                codec_context->subtitle_header_size);
+                header_bytes.data(),
+                static_cast<int>(header_utf8.size()));
         }
         ass_set_check_readorder(track, 0);
 
@@ -689,7 +696,9 @@ struct ExternalSubtitles::Impl {
                         for (unsigned int index = 0; index < subtitle.num_rects; ++index) {
                             const AVSubtitleRect* rectangle = subtitle.rects[index];
                             if (rectangle && rectangle->ass && rectangle->ass[0]) {
-                                const std::size_t size = std::strlen(rectangle->ass);
+                                const std::string cue_utf8 =
+                                    utf8_text(std::string_view(rectangle->ass));
+                                const std::size_t size = cue_utf8.size();
                                 if (size >
                                         static_cast<std::size_t>(
                                             std::numeric_limits<int>::max()) ||
@@ -703,10 +712,14 @@ struct ExternalSubtitles::Impl {
                                     avcodec_free_context(&codec_context);
                                     return false;
                                 }
+                                std::vector<char> cue_bytes(
+                                    cue_utf8.begin(),
+                                    cue_utf8.end());
+                                cue_bytes.push_back('\0');
                                 ass_process_chunk(
                                     track,
-                                    rectangle->ass,
-                                    static_cast<int>(size),
+                                    cue_bytes.data(),
+                                    static_cast<int>(cue_utf8.size()),
                                     start_ms,
                                     duration_ms);
                                 total_text_bytes += size;

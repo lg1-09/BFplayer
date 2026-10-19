@@ -18,7 +18,7 @@ const assets = [
     ['tile param', fs.readFileSync(path.join(root, 'assets', 'tile', 'param.json'))],
     ['icon', fs.readFileSync(path.join(root, 'assets', 'icon0.png'))],
     ['font', fs.readFileSync(
-        path.join(root, 'assets', 'fonts', 'NotoSans-Regular.ttf'))],
+        path.join(root, 'assets', 'fonts', 'NotoSans-Regular.otf'))],
     ['font license', fs.readFileSync(path.join(root, 'assets', 'fonts', 'OFL.txt'))]
 ];
 

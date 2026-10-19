@@ -8,7 +8,7 @@ $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $resolvedZip = (Resolve-Path -LiteralPath $ZipPath).Path
 $expectedPayloadFiles = @(
     'eboot.elf',
-    'assets/fonts/NotoSans-Regular.ttf',
+    'assets/fonts/NotoSans-Regular.otf',
     'assets/fonts/OFL.txt',
     'sce_sys/icon0.png',
     'INSTALL.md',

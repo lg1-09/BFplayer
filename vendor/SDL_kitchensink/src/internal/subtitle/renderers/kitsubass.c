@@ -1,7 +1,13 @@
 #include <assert.h>
+#include <limits.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <SDL_surface.h>
+
+#include "bfplayer/text_encoding.h"
 
 #include "kitchensink2/internal/kitlibstate.h"
 #include "kitchensink2/internal/subtitle/kitatlas.h"
@@ -39,6 +45,28 @@ static void Kit_ProcessAssImage(unsigned char *dst, const ASS_Image *img, int pi
     }
 }
 
+static char *Kit_DecodeSubtitleText(const char *text, size_t size, int *decoded_size) {
+    const size_t cap = size * 3U;
+    char *decoded;
+    size_t length;
+    *decoded_size = 0;
+    if (!text || size == 0 || size > (SIZE_MAX / 3U) || bfplayer_text_is_utf8(text, size)) {
+        return NULL;
+    }
+    decoded = malloc(cap + 1U);
+    if (!decoded) {
+        return NULL;
+    }
+    length = bfplayer_text_decode_utf8(text, size, decoded, cap);
+    if (length == 0 || length > (size_t)INT_MAX) {
+        free(decoded);
+        return NULL;
+    }
+    decoded[length] = '\0';
+    *decoded_size = (int)length;
+    return decoded;
+}
+
 static void ren_render_ass_cb(Kit_SubtitleRenderer *renderer, void *src, double pts, double start, double end) {
     assert(renderer != NULL);
     assert(src != NULL);
@@ -54,8 +82,21 @@ static void ren_render_ass_cb(Kit_SubtitleRenderer *renderer, void *src, double 
         if(sub->rects[r]->ass == NULL)
             continue;
 
-        // This requires the sub_text_format codec_opt set for ffmpeg
-        ass_process_chunk(ass_renderer->track, sub->rects[r]->ass, strlen(sub->rects[r]->ass), start_ms, end_ms);
+        // This requires the sub_text_format codec_opt set for ffmpeg.
+        // Chinese text subtitles are often GBK; libass only accepts UTF-8.
+        {
+            const char *ass_text = sub->rects[r]->ass;
+            const size_t ass_size = strlen(ass_text);
+            int decoded_size = 0;
+            char *decoded = Kit_DecodeSubtitleText(ass_text, ass_size, &decoded_size);
+            ass_process_chunk(
+                ass_renderer->track,
+                decoded ? decoded : sub->rects[r]->ass,
+                decoded ? decoded_size : (int)ass_size,
+                start_ms,
+                end_ms);
+            free(decoded);
+        }
     }
     SDL_UnlockMutex(ass_renderer->decoder_lock);
 }
@@ -279,10 +320,17 @@ Kit_SubtitleRenderer *Kit_CreateASSSubtitleRenderer(
         Kit_SetError("Unable to initialize libass track");
         goto exit_4;
     }
-    if(dec->codec_ctx->subtitle_header) {
+    if(dec->codec_ctx->subtitle_header && dec->codec_ctx->subtitle_header_size > 0) {
+        int decoded_size = 0;
+        char *decoded = Kit_DecodeSubtitleText(
+            (const char *)dec->codec_ctx->subtitle_header,
+            (size_t)dec->codec_ctx->subtitle_header_size,
+            &decoded_size);
         ass_process_codec_private(
-            render_track, (char *)dec->codec_ctx->subtitle_header, dec->codec_ctx->subtitle_header_size
-        );
+            render_track,
+            decoded ? decoded : (char *)dec->codec_ctx->subtitle_header,
+            decoded ? decoded_size : dec->codec_ctx->subtitle_header_size);
+        free(decoded);
     }
 
     ass_renderer->cached_items = NULL;

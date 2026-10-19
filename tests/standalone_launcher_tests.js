@@ -142,7 +142,7 @@ assert(launcher.includes('launch stage=hbldr-return'));
 assert(launcher.includes('O_RDONLY | O_NOFOLLOW'));
 assert(launcher.includes('MAP_PRIVATE'));
 assert(launcher.includes('munmap'));
-assert(launcher.includes('assets/fonts/NotoSans-Regular.ttf'));
+assert(launcher.includes('assets/fonts/NotoSans-Regular.otf'));
 assert(launcher.includes('assets/tile/param.json'));
 assert(launcher.includes('assets/icon0.png'));
 assert(launcher.includes('remove_legacy_bigapp_host_registration'));

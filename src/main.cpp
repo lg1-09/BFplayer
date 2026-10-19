@@ -5287,7 +5287,7 @@ int main(int argc, char** argv) {
     App app{};
     app.fallback_font = executable_asset_path(
         argc > 0 ? argv[0] : nullptr,
-        "assets/fonts/NotoSans-Regular.ttf");
+        "assets/fonts/NotoSans-Regular.otf");
     app.ui_logo = executable_asset_path(
         argc > 0 ? argv[0] : nullptr,
         "sce_sys/icon0.png");

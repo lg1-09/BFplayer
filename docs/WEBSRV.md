@@ -16,7 +16,7 @@ one of:
 The same `BFplayer` folder also contains:
 
 ```text
-assets/fonts/NotoSans-Regular.ttf
+assets/fonts/NotoSans-Regular.otf
 assets/fonts/OFL.txt
 sce_sys/icon0.png
 build-manifest.json

@@ -107,6 +107,14 @@ if(BUILD_TESTING)
     add_test(NAME safe_read_file_tests COMMAND safe_read_file_tests)
 
     add_executable(
+        text_encoding_tests
+        tests/text_encoding_tests.cpp
+        src/core/text_encoding.c
+    )
+    target_include_directories(text_encoding_tests PRIVATE include)
+    add_test(NAME text_encoding_tests COMMAND text_encoding_tests)
+
+    add_executable(
         kitchensink_audio_clock_tests
         tests/kitchensink_audio_clock_tests.cpp
         src/playback/kitchensink_audio_clock.c

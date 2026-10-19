@@ -166,6 +166,7 @@ try {
         $objects += $object
     }
     $cSources = @(
+        'src\core\text_encoding.c',
         'src\playback\kitsubimage_safe.c',
         'src\playback\kitchensink_audio_clock.c',
         'src\playback\kitchensink_subtitle_timing.c',
@@ -463,7 +464,7 @@ try {
     $websrvEboot = Join-Path $websrvPackageDir 'eboot.elf'
     Copy-Item -LiteralPath $elf -Destination $websrvEboot -Force
     Copy-Item `
-        -LiteralPath (Join-Path $projectRoot 'assets\fonts\NotoSans-Regular.ttf') `
+        -LiteralPath (Join-Path $projectRoot 'assets\fonts\NotoSans-Regular.otf') `
         -Destination (Join-Path $websrvPackageDir 'assets\fonts') `
         -Force
     Copy-Item `
@@ -489,7 +490,7 @@ try {
 
     $websrvPayloadFiles = @(
         'eboot.elf',
-        'assets\fonts\NotoSans-Regular.ttf',
+        'assets\fonts\NotoSans-Regular.otf',
         'assets\fonts\OFL.txt',
         'sce_sys\icon0.png',
         'INSTALL.md',

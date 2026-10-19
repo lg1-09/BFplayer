@@ -13,6 +13,7 @@
 #include "bfplayer/media_probe.hpp"
 #include "bfplayer/player_settings.hpp"
 #include "bfplayer/source_uri.hpp"
+#include "bfplayer/text_encoding.h"
 #include "bfplayer/video_thumbnail.hpp"
 
 #include <SDL.h>
@@ -165,7 +166,8 @@ void destroy_label(Label& label) {
 
 Label make_label(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, SDL_Color color) {
     Label label{};
-    SDL_Surface* surface = TTF_RenderUTF8_Blended(font, text.c_str(), color);
+    const std::string utf8 = utf8_text(text);
+    SDL_Surface* surface = TTF_RenderUTF8_Blended(font, utf8.c_str(), color);
     if (!surface) {
         return label;
     }
@@ -439,6 +441,7 @@ void draw_logo(
 }
 
 std::string fit_text_to_width(TTF_Font* font, std::string text, int max_width) {
+    text = utf8_text(text);
     int width = 0;
     int height = 0;
     if (TTF_SizeUTF8(font, text.c_str(), &width, &height) == 0 && width <= max_width) {

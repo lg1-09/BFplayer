@@ -1,4 +1,5 @@
 #include "bfplayer/playback_osd.hpp"
+#include "bfplayer/text_encoding.h"
 
 #include <SDL.h>
 #include <SDL_ttf.h>
@@ -32,6 +33,7 @@ std::string fit_text_to_width(
     TTF_Font* font,
     std::string text,
     int maximum_width) {
+    text = utf8_text(std::move(text));
     int width = 0;
     int height = 0;
     if (font &&
@@ -129,10 +131,11 @@ struct PlaybackOsd::Impl {
         int& width,
         int& height,
         SDL_Color color) {
-        if (text == rendered && texture) {
+        const std::string utf8 = utf8_text(text);
+        if (utf8 == rendered && texture) {
             return true;
         }
-        SDL_Surface* surface = TTF_RenderUTF8_Blended(font, text.c_str(), color);
+        SDL_Surface* surface = TTF_RenderUTF8_Blended(font, utf8.c_str(), color);
         if (!surface) {
             last_error = std::string("TTF_RenderUTF8_Blended: ") + TTF_GetError();
             return false;
@@ -147,7 +150,7 @@ struct PlaybackOsd::Impl {
         }
         SDL_DestroyTexture(texture);
         texture = replacement;
-        rendered = text;
+        rendered = utf8;
         return true;
     }
 };
@@ -242,8 +245,9 @@ void PlaybackOsd::show_panel(
                             int& width,
                             int& height,
                             SDL_Color color) {
+        const std::string utf8 = utf8_text(text);
         SDL_Surface* surface =
-            TTF_RenderUTF8_Blended(impl_->font, text.c_str(), color);
+            TTF_RenderUTF8_Blended(impl_->font, utf8.c_str(), color);
         if (!surface) {
             return static_cast<SDL_Texture*>(nullptr);
         }

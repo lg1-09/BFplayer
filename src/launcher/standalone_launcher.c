@@ -73,7 +73,7 @@
 INCASSET(bfplayer_embedded_player_gzip, "build/ps5/bfplayer.elf.gz");
 INCASSET(bfplayer_tile_param_json, "assets/tile/param.json");
 INCASSET(bfplayer_icon_png, "assets/icon0.png");
-INCASSET(bfplayer_font_ttf, "assets/fonts/NotoSans-Regular.ttf");
+INCASSET(bfplayer_font_ttf, "assets/fonts/NotoSans-Regular.otf");
 INCASSET(bfplayer_font_license, "assets/fonts/OFL.txt");
 
 static int bfplayer_player_image_verified = 0;
@@ -555,7 +555,7 @@ static int install_runtime_assets(void) {
     }
     changed_files += changed;
     if ((result = update_file_atomic(
-            BFPLAYER_FONT_DIR "/NotoSans-Regular.ttf",
+            BFPLAYER_FONT_DIR "/NotoSans-Regular.otf",
             bfplayer_font_ttf,
             bfplayer_font_ttf_size,
             0644,

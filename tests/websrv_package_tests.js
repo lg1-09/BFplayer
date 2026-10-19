@@ -15,7 +15,7 @@ const verifier = fs.readFileSync(
 assert(build.includes("$websrvPackageDir = Join-Path $packageRoot 'BFplayer'"));
 assert(build.includes("$websrvEboot = Join-Path $websrvPackageDir 'eboot.elf'"));
 assert(build.includes("$websrvZip = Join-Path $distDir 'BFplayer-websrv.zip'"));
-assert(build.includes("'assets\\fonts\\NotoSans-Regular.ttf'"));
+assert(build.includes("'assets\\fonts\\NotoSans-Regular.otf'"));
 assert(build.includes("'sce_sys\\icon0.png'"));
 assert(build.includes("entrypoint = 'BFplayer/eboot.elf'"));
 assert(build.includes('websrv_required = $true'));
